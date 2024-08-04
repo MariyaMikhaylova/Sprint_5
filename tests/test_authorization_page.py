@@ -1,70 +1,50 @@
-from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 
-# создание аккаунта для проверок авторизации
-import conftest
-login = conftest.generate_login(6)
-password = conftest.generate_password(6)
+import locators
 
-driver = webdriver.Chrome()
-driver.get("https://stellarburgers.nomoreparties.site/register")
-
-driver.find_element(By.XPATH, "html/body/div/div/main/div/form/fieldset[1]/div/div/input").send_keys("Mariia")
-driver.find_element(By.XPATH, "html/body/div/div/main/div/form/fieldset[2]/div/div/input").send_keys(login)
-driver.find_element(By.XPATH, "html/body/div/div/main/div/form/fieldset[3]/div/div/input").send_keys(password)
-driver.find_element(By.XPATH, "html/body/div/div/main/div/form/button").click()
-
-driver.quit()
 
 # вход по кнопке «Войти в аккаунт» на главной
-driver = webdriver.Chrome()
-driver.get("https://stellarburgers.nomoreparties.site/")
+def test_authorization_from_main_page_header(main_page, create_account, new_user):
 
-driver.find_element(By.XPATH, "html/body/div/div/main/section[2]/div/button").click()
-driver.find_element(By.XPATH, "html/body/div/div/main/div/form/fieldset[1]/div/div/input").send_keys(login)
-driver.find_element(By.XPATH, "html/body/div/div/main/div/form/fieldset[2]/div/div/input").send_keys(password)
-driver.find_element(By.XPATH, "html/body/div/div/main/div/form/button").click()
+    main_page.find_element(By.XPATH, locators.button_enter_acc).click()
+    main_page.find_element(By.XPATH, locators.login_aut).send_keys(new_user.login)
+    main_page.find_element(By.XPATH, locators.password_aut).send_keys(new_user.password)
+    main_page.find_element(By.XPATH, locators.button_enter).click()
 
-WebDriverWait(driver, 7).until(expected_conditions.visibility_of_element_located((By.XPATH, "html/body/div/div/main/section/h1")))
-assert "https://stellarburgers.nomoreparties.site/" == driver.current_url
-driver.quit()
+    WebDriverWait(main_page, 7).until(expected_conditions.visibility_of_element_located((By.XPATH, locators.title)))
+    assert "https://stellarburgers.nomoreparties.site/" == main_page.current_url
 
 # вход через кнопку «Личный кабинет»
-driver = webdriver.Chrome()
-driver.get("https://stellarburgers.nomoreparties.site/")
+def test_authorization_from_main_page_body(main_page, create_account, new_user):
 
-driver.find_element(By.XPATH, "html/body/div/div/header/nav/a").click()
-driver.find_element(By.XPATH, "html/body/div/div/main/div/form/fieldset[1]/div/div/input").send_keys(login)
-driver.find_element(By.XPATH, "html/body/div/div/main/div/form/fieldset[2]/div/div/input").send_keys(password)
-driver.find_element(By.XPATH, "html/body/div/div/main/div/form/button").click()
+    main_page.find_element(By.XPATH, locators.a_account).click()
+    main_page.find_element(By.XPATH, locators.login_aut).send_keys(new_user.login)
+    main_page.find_element(By.XPATH, locators.password_aut).send_keys(new_user.password)
+    main_page.find_element(By.XPATH, locators.button_enter).click()
 
-WebDriverWait(driver, 3).until(expected_conditions.visibility_of_element_located((By.XPATH, "html/body/div/div/main/section/h1")))
-assert "https://stellarburgers.nomoreparties.site/" == driver.current_url
-driver.quit()
+    WebDriverWait(main_page, 3).until(expected_conditions.visibility_of_element_located((By.XPATH, locators.title)))
+    assert "https://stellarburgers.nomoreparties.site/" == main_page.current_url
 
-# вход через кнопку в форме регистрации
-driver = webdriver.Chrome()
-driver.get("https://stellarburgers.nomoreparties.site/register")
 
-driver.find_element(By.XPATH, "html/body/div/div/main/div/div/p/a").click()
-driver.find_element(By.XPATH, "html/body/div/div/main/div/form/fieldset[1]/div/div/input").send_keys(login)
-driver.find_element(By.XPATH, "html/body/div/div/main/div/form/fieldset[2]/div/div/input").send_keys(password)
-driver.find_element(By.XPATH, "html/body/div/div/main/div/form/button").click()
+# # вход через кнопку в форме регистрации
+def test_authorization_from_registration_page(registration_page, create_account, new_user):
 
-WebDriverWait(driver, 3).until(expected_conditions.visibility_of_element_located((By.XPATH, "html/body/div/div/main/section/h1")))
-assert "https://stellarburgers.nomoreparties.site/" == driver.current_url
-driver.quit()
+    registration_page.find_element(By.XPATH, locators.a_in).click()
+    registration_page.find_element(By.XPATH, locators.login_aut).send_keys(new_user.login)
+    registration_page.find_element(By.XPATH, locators.password_aut).send_keys(new_user.password)
+    registration_page.find_element(By.XPATH, locators.button_enter).click()
 
-# вход через кнопку в форме восстановления пароля
-driver = webdriver.Chrome()
-driver.get("https://stellarburgers.nomoreparties.site/login")
+    WebDriverWait(registration_page, 3).until(expected_conditions.visibility_of_element_located((By.XPATH, locators.title)))
+    assert "https://stellarburgers.nomoreparties.site/" == registration_page.current_url
 
-driver.find_element(By.XPATH, "html/body/div/div/main/div/div/p[2]/a").click()
-driver.find_element(By.XPATH, "html/body/div/div/main/div/form/fieldset/div/div/input").send_keys(login)
-driver.find_element(By.XPATH, "html/body/div/div/main/div/form/button").click()
+# # вход через кнопку в форме восстановления пароля
+def test_authorization_from_forgot_password_page(authorization_page, create_account, new_user):
 
-WebDriverWait(driver, 7).until(expected_conditions.visibility_of_element_located((By.XPATH, "html/body/div/div/main/div/form/fieldset[2]")))
-assert "https://stellarburgers.nomoreparties.site/reset-password" == driver.current_url
-driver.quit()
+    authorization_page.find_element(By.XPATH, locators.a_forgot_password).click()
+    authorization_page.find_element(By.XPATH, locators.login_forgot).send_keys(new_user.login)
+    authorization_page.find_element(By.XPATH, locators.button_restore).click()
+
+    WebDriverWait(authorization_page, 7).until(expected_conditions.visibility_of_element_located((By.XPATH, locators.letter_code)))
+    assert "https://stellarburgers.nomoreparties.site/reset-password" == authorization_page.current_url
